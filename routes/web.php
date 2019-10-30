@@ -19,5 +19,7 @@ $router->group(['prefix' => 'api'], function ($router) {
     $router->post('user/register', 'UserController@register');
     $router->post('user/login', 'UserController@login');
     $router->post('upload', 'ReceiptController@uploadImage');
-    $router->post('createActivities', 'ReceiptController@createActivity');
+    $router->post('create/activity', 'ReceiptController@createActivities');
+    $router->get('activity/getAll', 'ReceiptController@getActivities');
+    $router->get('receipt/getAll', 'ReceiptController@getReceipts');
 });

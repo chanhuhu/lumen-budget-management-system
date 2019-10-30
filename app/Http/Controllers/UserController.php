@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
 use App\Models\Status;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -42,20 +41,23 @@ class UserController extends Controller
         ]);
         if ($validator->fails()) {
             $errors = $validator->errors();
-            return $this->responseRequestError($errors);
+            return $this->responseRequestError($errors,400);
         } else {
             $user = new User();
-            $user->role_id = $request->role_id;
-            $user->email = $request->email;
-            $user->last = $request->last;
-            $user->first = $request->first;
-            $user->password = Hash::make($request->password);
+            $form = [
+                'email' => $request->get('email'),
+                'password' => Hash::make($request->get('password')),
+                'first' => $request->get('first'),
+                'last' => $request->get('last'),
+                'role_id' => $request->get('role_id'),
+            ];
+            $user->fill($form);
             if ($user->save()) {
                 $token = $this->jwt($user);
                 $user['api_token'] = $token;
                    return $this->responseRequestSuccess($user);
             } else {
-                return $this->responseRequestError('Cannot Register');
+                return $this->responseRequestError('Cannot Register', 500);
             }
         }
     }

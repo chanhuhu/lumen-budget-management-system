@@ -9,7 +9,7 @@ class Receipt extends Model
     protected $table = 'receipts';
 
     protected $fillable = [
-        'remark', 'cost', 'date',
+        'remark', 'cost', 'date', 'activity_id'
     ];
 
     protected $hidden = [

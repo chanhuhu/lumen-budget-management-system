@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Activity;
 use App\Models\Receipt;
-use App\Models\Receipt_image;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+
 
 class ReceiptController extends Controller
 {
@@ -17,55 +18,69 @@ class ReceiptController extends Controller
 
     public function uploadImage(Request $request)
     {
-//        $receipt = (object)[];
-        $receipt = new Receipt();
-        $receipt->activity_id = $request->activity_id;
-        $receipt->remark = $request->remark;
-        $receipt->cost = $request->remark;
-        $receipt->date = $request->date;
-        if ($receipt->save()) {
-            $this->responseRequestSuccess($receipt);
-        }
-        if ($request->hasFile('filename')) {
-            $original_filename = $request->file('filename')->getClientOriginalName();
-            $original_filename_arr = explode('.', $original_filename);
-            $file_ext = end($original_filename_arr);
-            $destination_path = './upload/receipt/';
-            $filename = 'R-' . time() . '.' . $file_ext;
-            if ($request->file('filename')->move($destination_path, $filename)) {
-//                $receipt->filename = '/upload/receipt/' . $filename;
-//                $receipt->receipt_id = '';
-                $receipt->save();
-                return $this->responseRequestSuccess($receipt);
-            } else {
-                return $this->responseRequestError('Cannot upload file');
-            }
+        $validator = Validator::make($request->all(), [
+            'activity' => 'required',
+            'remark' => 'required',
+            'cost' => 'required',
+            'date' => 'required',
+            'files' => 'required'
+        ]);
+        if ($validator->fails()) {
+            $errors = $validator->errors();
+            return $this->responseRequestError($errors, 400);
         } else {
-            return $this->responseRequestError('File not found');
+            $receipt = new Receipt();
+            $form = [
+                'remark' => $request->get('remark'),
+                'cost' => $request->get('cost'),
+                'date' => $request->get('date'),
+            ];
+            $receipt->fill($form);
+            $receipt->save();
+            return $this->responseRequestSuccess($receipt);
+//            if ($receipt->save()) {
+//                $user = (object)['image' => ""];
+//                if ($request->has('flies')) {
+//                    $original_filename = $request->file('image')->getClientOriginalName();
+//                    $original_filename_arr = explode('.', $original_filename);
+//                    $file_ext = end($original_filename_arr);
+//                    $destination_path = './upload/user/';
+//                    $image = 'U-' . time() . '.' . $file_ext;
+//                    if ($request->file('image')->move($destination_path, $image)) {
+//                        $user->image = '/upload/user/' . $image;
+//                        return $this->responseRequestSuccess($user);
+//                    } else {
+//                        return $this->responseRequestError('Cannot upload file');
+//                    }
+//
+//                } else {
+//                    return $this->responseRequestError('File not found');
+//                }
+//            } else {
+//                return $this->responseRequestError('Cannot create receipt');
+//            }
         }
     }
 
-    public function uploadSubmit(Request $request)
+    public function getReceipts(Request $request)
     {
-        $product = Receipt_image::create($request->all());
-        foreach ($request->photos as $photo) {
-            $filename = $photo->store('photos');
-            Receipt_image::create([
-                'product_id' => $product->id,
-                'filename' => $filename
-            ]);
-        }
-        //test
-        return 'Upload successful!';
+        $receipts = Receipt::all();
+        return $this->responseRequestSuccess($receipts);
     }
+
 
     public function createActivity(Request $request)
     {
         $activity = new Activity();
         $activity->name = $request->name;
-        if ($activity->save()) {
-            $this->responseRequestSuccess($activity);
-        }
+        $activity->save();
+        return $this->responseRequestSuccess($activity);
+    }
+
+    public function getActivities(Request $request)
+    {
+        $activities = Activity::all();
+        return $this->responseRequestSuccess($activities);
     }
 
     protected function responseRequestError($message = 'Bad request', $statusCode = 200)
