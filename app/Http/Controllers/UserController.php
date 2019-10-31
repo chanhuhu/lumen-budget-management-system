@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\UserRole;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Status;
 use App\Models\User;
@@ -59,6 +60,22 @@ class UserController extends Controller
             } else {
                 return $this->responseRequestError('Cannot Register', 500);
             }
+        }
+    }
+
+    public function createRole(Request $request)
+    {
+        $role = new UserRole();
+        $role->name = $request->name;
+        $role->save();
+        return $this->responseRequestSuccess($role);
+    }
+
+    public function getRoles(Request $request)
+    {
+        $roles = UserRole::all();
+        if (!empty($roles)) {
+            return $this->responseRequestSuccess($roles);
         }
     }
 

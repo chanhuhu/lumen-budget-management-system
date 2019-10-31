@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Activity;
 use App\Models\Receipt;
 use Illuminate\Http\Request;
+use App\Models\Receipt_image;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -19,7 +20,7 @@ class ReceiptController extends Controller
     public function uploadImage(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'activity' => 'required',
+            'activity_id' => 'required',
             'remark' => 'required',
             'cost' => 'required',
             'date' => 'required',
@@ -34,32 +35,42 @@ class ReceiptController extends Controller
                 'remark' => $request->get('remark'),
                 'cost' => $request->get('cost'),
                 'date' => $request->get('date'),
+                'activity_id' => $request->get('activity_id')
             ];
             $receipt->fill($form);
-            $receipt->save();
-            return $this->responseRequestSuccess($receipt);
-//            if ($receipt->save()) {
-//                $user = (object)['image' => ""];
-//                if ($request->has('flies')) {
-//                    $original_filename = $request->file('image')->getClientOriginalName();
-//                    $original_filename_arr = explode('.', $original_filename);
-//                    $file_ext = end($original_filename_arr);
-//                    $destination_path = './upload/user/';
-//                    $image = 'U-' . time() . '.' . $file_ext;
-//                    if ($request->file('image')->move($destination_path, $image)) {
-//                        $user->image = '/upload/user/' . $image;
-//                        return $this->responseRequestSuccess($user);
-//                    } else {
-//                        return $this->responseRequestError('Cannot upload file');
-//                    }
-//
-//                } else {
-//                    return $this->responseRequestError('File not found');
-//                }
-//            } else {
-//                return $this->responseRequestError('Cannot create receipt');
-//            }
+
+            if ($receipt->save()) {
+                $img_url = $this->downloadPhotos($receipt->id, $request);
+                $receipt['img_url'] = $img_url->filename;
+                return $this->responseRequestSuccess($receipt);
+
+            }
+
         }
+    }
+
+    public function downloadPhotos($receipt_id, Request $request)
+    {
+        foreach ($request->files as $file) {
+            $original_filename = $file->getClientOriginalName();
+            $original_filename_arr = explode('.', $original_filename);
+            $file_ext = end($original_filename_arr);
+            $destination_path = './upload/user/';
+            $image = 'U-' . time() . '.' . $file_ext;
+            if ($request->file('image')->move($destination_path, $image)) {
+                $photo = new Receipt_image();
+                $filename = '/upload/user/' . $image;
+                $photo->receipt_id = $receipt_id;
+                $photo->filename = $filename;
+                $photo->save();
+                return $photo;
+            }
+        }
+
+    }
+
+    public function updateReceipt(Request $request, $id)
+    {
     }
 
     public function getReceipts(Request $request)

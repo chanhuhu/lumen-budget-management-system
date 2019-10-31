@@ -19,6 +19,7 @@ class CreateReceiptsTable extends Migration
             $table->string('approver_id')->nullable();
             $table->string('remark');
             $table->float('cost');
+            $table->string('date');
             $table->unsignedInteger('status_id')->default(1);
             $table->timestamps();
         });

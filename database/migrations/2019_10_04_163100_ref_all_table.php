@@ -14,22 +14,22 @@ class RefAllTable extends Migration
     public function up()
     {
         // fk for users table
-        Schema::table('users',function (Blueprint $table){
-            $table->foreign('role_id')->references('id')->on('roles')->onUpdate('cascade');
-        });
+//        Schema::table('users',function (Blueprint $table){
+//            $table->foreign('role_id')->references('id')->on('roles')->onUpdate('cascade');
+//        });
         // fk for receipt_type table
 //        Schema::table('receipt_type',function (Blueprint $table){
 //            $table->foreign('receipt_id')->references('id')->on('receipts')->on('roles')->onUpdate('cascade');
 //            $table->foreign('type_id')->references('id')->on('types_of_receipts')->on('roles')->onUpdate('cascade');
 //        });
         // fk for images table
-        Schema::table('images',function (Blueprint $table){
-            $table->foreign('receipt_id')->references('id')->on('receipts')->on('roles')->onUpdate('cascade');
-        });
+//        Schema::table('images',function (Blueprint $table){
+//            $table->foreign('receipt_id')->references('id')->on('receipts')->on('roles')->onUpdate('cascade');
+//        });
         // fk for receipts table
-        Schema::table('receipts',function (Blueprint $table){
-            $table->foreign('activity_id')->references('id')->on('activities')->on('roles')->onUpdate('cascade');
-        });
+//        Schema::table('receipts',function (Blueprint $table){
+//            $table->foreign('activity_id')->references('id')->on('activities')->on('roles')->onUpdate('cascade');
+//        });
         //fk for user_activity table
 //        Schema::table('user_activity',function (Blueprint $table){
 //                    $table->foreign('activity_id')->references('id')->on('activities')->on('roles')->onUpdate('cascade');

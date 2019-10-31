@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+
 class Activity extends Model
 {
     protected $table = "activities";
@@ -11,4 +12,9 @@ class Activity extends Model
     protected $fillable = [
         'name',
     ];
+
+    public function receipt()
+    {
+        return $this->hasMany('App\Models\Receipt');
+    }
 }

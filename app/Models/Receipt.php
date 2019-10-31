@@ -16,8 +16,13 @@ class Receipt extends Model
         'status_id', 'approver_id'
     ];
 
-    public function Receipt_image()
+    public function receipt_image()
     {
         return $this->hasMany('App\Models\Receipt_image');
+    }
+
+    public function activity()
+    {
+        return $this->belongsTo('App\Models\Activity');
     }
 }
