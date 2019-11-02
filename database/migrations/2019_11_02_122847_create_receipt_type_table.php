@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTypesOfReceiptsTable extends Migration
+class CreateReceiptTypeTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,11 @@ class CreateTypesOfReceiptsTable extends Migration
      */
     public function up()
     {
-        Schema::create('types_of_receipts', function (Blueprint $table) {
+        Schema::create('receipt_type', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name');
-            $table->unsignedInteger('status_id')->default(1);
-            $table->timestamps();
+            $table->string('receipt_id');
+            $table->string('type_id');
         });
-        
     }
 
     /**
@@ -29,6 +27,6 @@ class CreateTypesOfReceiptsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('types_of_receipts');
+        Schema::dropIfExists('receipt_type');
     }
 }

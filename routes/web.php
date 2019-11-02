@@ -16,8 +16,11 @@ $router->get('/', function () use ($router) {
 });
 
 $router->group(['prefix' => 'api'], function ($router) {
-    $router->post('user/register', 'UserController@register');
+    $router->get('user/getAll', 'UserController@getUsers');
+    $router->get('user/{id}', 'UserController@showUser');
     $router->post('user/login', 'UserController@login');
+    $router->post('user/register', 'UserController@register');
+    $router->put('user/{id}', 'UserController@updateUser');
 
     $router->get('receipt/getAll', 'ReceiptController@getReceipts');
     $router->post('receipt/upload', 'ReceiptController@uploadImage');

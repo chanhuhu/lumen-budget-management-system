@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Activity;
 use App\Models\Receipt;
+use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Receipt_image;
 use Illuminate\Support\Facades\Validator;
@@ -82,10 +83,20 @@ class ReceiptController extends Controller
 
     public function createActivity(Request $request)
     {
-        $activity = new Activity();
-        $activity->name = $request->name;
-        $activity->save();
-        return $this->responseRequestSuccess($activity);
+        $activity = Activity::where('name', $request->name)->first();
+        if (!empty($activity)) {
+            $user = User::find($request->get('user_id'))->activities()->attach($activity->id);
+            $activity['user_id'] = $request->get('user_id');
+            return $this->responseRequestSuccess($activity);
+        } else {
+            $activity = new Activity();
+            $activity->name = $request->name;
+            if ($activity->save()) {
+                $user = User::find($request->get('user_id'))->activities()->attach($activity->id);
+                $activity['user_id'] = $request->get('user_id');
+                return $this->responseRequestSuccess($activity);
+            }
+        }
     }
 
     public function getActivities(Request $request)

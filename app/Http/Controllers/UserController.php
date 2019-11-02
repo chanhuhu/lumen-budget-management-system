@@ -19,7 +19,7 @@ class UserController extends Controller
 
     public function login(Request $request)
     {
-        $user = User::where('email', $request->email)->where('status_id', Status::$ACTIVE)->first();
+        $user = User::where('email', $request->email)->where('status_id', Status::$INACTIVE)->first();
         if ($user && Hash::check($request->password, $user->password)) {
             $token = $this->jwt($user);
             $user['api_token'] = $token;
@@ -27,6 +27,31 @@ class UserController extends Controller
 
         }
         return $this->responseRequestError('The credentials provided are invalid.', 500);
+
+    }
+
+    public function getUsers(Request $request)
+    {
+        $users = User::all();
+        if (!empty($users)) {
+            return $this->responseRequestSuccess($users);
+        }
+    }
+
+    public function showUser($id)
+    {
+        $user = User::where('id', $id)->first();
+        return $this->responseRequestSuccess($user);
+    }
+
+    public function updateUser(Request $request, $id)
+    {
+        $user = User::where('id', $id)->first();
+        $user->status_id = $request->status_id;
+        if ($user->save()) {
+            return $this->responseRequestSuccess($user);
+        }
+
 
     }
 
@@ -42,7 +67,7 @@ class UserController extends Controller
         ]);
         if ($validator->fails()) {
             $errors = $validator->errors();
-            return $this->responseRequestError($errors,400);
+            return $this->responseRequestError($errors, 400);
         } else {
             $user = new User();
             $form = [
@@ -56,7 +81,7 @@ class UserController extends Controller
             if ($user->save()) {
                 $token = $this->jwt($user);
                 $user['api_token'] = $token;
-                   return $this->responseRequestSuccess($user);
+                return $this->responseRequestSuccess($user);
             } else {
                 return $this->responseRequestError('Cannot Register', 500);
             }

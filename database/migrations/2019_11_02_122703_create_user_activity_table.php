@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTypesOfReceiptsTable extends Migration
+class CreateUserActivityTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,11 @@ class CreateTypesOfReceiptsTable extends Migration
      */
     public function up()
     {
-        Schema::create('types_of_receipts', function (Blueprint $table) {
+        Schema::create('user_activity', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name');
-            $table->unsignedInteger('status_id')->default(1);
-            $table->timestamps();
+            $table->string('user_id');
+            $table->string('activity_id');
         });
-        
     }
 
     /**
@@ -29,6 +27,6 @@ class CreateTypesOfReceiptsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('types_of_receipts');
+        Schema::dropIfExists('user_activity');
     }
 }

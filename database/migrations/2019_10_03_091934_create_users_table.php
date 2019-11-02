@@ -20,7 +20,7 @@ class CreateUsersTable extends Migration
             $table->string('last');
             $table->string('email')->unique();
             $table->string('password');
-            $table->unsignedInteger('status_id')->default(1);
+            $table->unsignedInteger('status_id')->default(2);
             $table->timestamps();
         });
 
