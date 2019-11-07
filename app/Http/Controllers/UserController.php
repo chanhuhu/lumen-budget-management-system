@@ -51,8 +51,6 @@ class UserController extends Controller
         if ($user->save()) {
             return $this->responseRequestSuccess($user);
         }
-
-
     }
 
     public function register(Request $request)

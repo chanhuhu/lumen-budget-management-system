@@ -16,7 +16,7 @@ class CreateReceiptsTable extends Migration
         Schema::create('receipts', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('activity_id')->nullable();
-            $table->string('approver_id')->nullable();
+            $table->string('accountant_id')->nullable();
             $table->string('remark');
             $table->float('cost');
             $table->string('date');

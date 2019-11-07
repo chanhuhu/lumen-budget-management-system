@@ -6,8 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Receipt_image extends Model
 {
+    protected $table = 'images';
+
     protected $fillable = [
-        'receipt_id', 'filename'
+        'receipt_id', 'file_name'
     ];
 
     public function receipt()

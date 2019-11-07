@@ -18,60 +18,76 @@ class ReceiptController extends Controller
         //
     }
 
-    public function uploadImage(Request $request)
+    public function uploadReceipt(Request $request)
     {
+
+
+        $this->responseRequestSuccess($request->file('file_name'));
         $validator = Validator::make($request->all(), [
-            'activity_id' => 'required',
-            'remark' => 'required',
-            'cost' => 'required',
-            'date' => 'required',
-            'files' => 'required'
+            'file_name.*' => 'image|mimes:jpg,jpeg,png,gif,bmp',
         ]);
         if ($validator->fails()) {
             $errors = $validator->errors();
             return $this->responseRequestError($errors, 400);
-        } else {
-            $receipt = new Receipt();
-            $form = [
-                'remark' => $request->get('remark'),
-                'cost' => $request->get('cost'),
-                'date' => $request->get('date'),
-                'activity_id' => $request->get('activity_id')
-            ];
-            $receipt->fill($form);
-
-            if ($receipt->save()) {
-                $img_url = $this->downloadPhotos($receipt->id, $request);
-                $receipt['img_url'] = $img_url->filename;
-                return $this->responseRequestSuccess($receipt);
-
-            }
-
         }
+
+        $receipt = new Receipt();
+        $form = [
+            'activity_id' => $request->get('activity_id'),
+            'date' => $request->get('date'),
+            'cost' => $request->get('cost'),
+            'remark' => $request->get('remark'),
+        ];
+        $receipt->fill($form);
+        $receipt->save();
+        $images = $this->uploadFiles($request);
+
+        foreach ($images as $image_file) {
+            list($file_name, $des) = $image_file;
+            $image = new Receipt_image();
+            $form_image = [
+                'receipt_id' => $receipt->id,
+                'file_name' => $des . $file_name
+            ];
+            $image->fill($form_image);
+            $image->save();
+        }
+        return $this->responseRequestSuccess($receipt);
     }
 
-    public function downloadPhotos($receipt_id, Request $request)
+    protected function uploadFiles($request)
     {
-        foreach ($request->files as $file) {
-            $original_filename = $file->getClientOriginalName();
-            $original_filename_arr = explode('.', $original_filename);
-            $file_ext = end($original_filename_arr);
-            $destination_path = './upload/user/';
-            $image = 'U-' . time() . '.' . $file_ext;
-            if ($request->file('image')->move($destination_path, $image)) {
-                $photo = new Receipt_image();
-                $filename = '/upload/user/' . $image;
-                $photo->receipt_id = $receipt_id;
-                $photo->filename = $filename;
-                $photo->save();
-                return $photo;
+        $uploadedImages = [];
+        if ($request->hasFile('file_name')) {
+            $images = $request->file('file_name');
+            foreach ($images as $image) {
+                $uploadedImages[] = $this->uploadFile($image);
             }
         }
+        return $uploadedImages;
+    }
 
+    protected function uploadFile($image)
+    {
+        $original_filename = $image->getClientOriginalName();
+        $original_filename_arr = explode('.', $original_filename);
+        $file_ext = end($original_filename_arr);
+        $destination_path = './upload/user/';
+        $uploadedFileName = 'U-' . time() . '.' . $file_ext;
+        if ($image->move($destination_path, $uploadedFileName)) {
+            return [$uploadedFileName, $destination_path];
+        }
     }
 
     public function updateReceipt(Request $request, $id)
     {
+        $receipt = Receipt::find($id);
+        $receipt->approver_id = $request->approver_id;
+        if ($receipt->save()) {
+            $this->responseRequestSuccess($receipt);
+        } else {
+            return $this->responseRequestError('The credentials provided are invalid.', 500);
+        }
     }
 
     public function getReceipts(Request $request)
@@ -95,6 +111,8 @@ class ReceiptController extends Controller
                 $user = User::find($request->get('user_id'))->activities()->attach($activity->id);
                 $activity['user_id'] = $request->get('user_id');
                 return $this->responseRequestSuccess($activity);
+            } else {
+                return $this->responseRequestError('The credentials provided are invalid.', 500);
             }
         }
     }
@@ -103,6 +121,12 @@ class ReceiptController extends Controller
     {
         $activities = Activity::all();
         return $this->responseRequestSuccess($activities);
+    }
+
+    public function showUserActivities($id)
+    {
+        $user = User::find($id)->activities;
+        return $this->responseRequestSuccess($user);
     }
 
     protected function responseRequestError($message = 'Bad request', $statusCode = 200)
