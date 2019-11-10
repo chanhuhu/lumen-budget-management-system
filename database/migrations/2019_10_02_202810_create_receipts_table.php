@@ -15,12 +15,12 @@ class CreateReceiptsTable extends Migration
     {
         Schema::create('receipts', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('activity_id')->nullable();
+            $table->unsignedBigInteger('activity_id');
             $table->string('accountant_id')->nullable();
             $table->string('remark');
             $table->float('cost');
             $table->string('date');
-            $table->unsignedInteger('status_id')->default(1);
+            $table->unsignedInteger('status_id')->default(4);
             $table->timestamps();
         });
 

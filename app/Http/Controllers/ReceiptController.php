@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Activity;
 use App\Models\Receipt;
+use App\Models\Status;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Receipt_image;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -20,9 +22,6 @@ class ReceiptController extends Controller
 
     public function uploadReceipt(Request $request)
     {
-
-
-        $this->responseRequestSuccess($request->file('file_name'));
         $validator = Validator::make($request->all(), [
             'file_name.*' => 'image|mimes:jpg,jpeg,png,gif,bmp',
         ]);
@@ -55,38 +54,47 @@ class ReceiptController extends Controller
         return $this->responseRequestSuccess($receipt);
     }
 
+    public function checkCost(Request $request, $id)
+    {
+        $receipt = Receipt::where('id', $id)->first();
+        if ($receipt->cost == $request->cost) {
+            return $this->responseRequestSuccess('this cost is matched');
+        }
+        return $this->responseRequestError('does\'t match');
+    }
+
     protected function uploadFiles($request)
     {
         $uploadedImages = [];
         if ($request->hasFile('file_name')) {
             $images = $request->file('file_name');
-            foreach ($images as $image) {
-                $uploadedImages[] = $this->uploadFile($image);
+            foreach ($images as $key => $image) {
+                $uploadedImages[] = $this->uploadFile($image, $key);
             }
         }
         return $uploadedImages;
     }
 
-    protected function uploadFile($image)
+    protected function uploadFile($image, $key)
     {
         $original_filename = $image->getClientOriginalName();
         $original_filename_arr = explode('.', $original_filename);
         $file_ext = end($original_filename_arr);
         $destination_path = './upload/user/';
-        $uploadedFileName = 'U-' . time() . '.' . $file_ext;
+        $uploadedFileName = 'U-' . time() . '-' . $key . '.' . $file_ext;
         if ($image->move($destination_path, $uploadedFileName)) {
+            $destination_path = 'http://localhost:8000/upload/user/';
             return [$uploadedFileName, $destination_path];
         }
     }
 
     public function updateReceipt(Request $request, $id)
     {
-        $receipt = Receipt::find($id);
-        $receipt->approver_id = $request->approver_id;
+        $receipt = Receipt::where('id', $id)->where('status_id', Status::$WAITING)->first();
+        $receipt->accountant_id = $request->get('accountant_id');
+        $receipt->status_id = $request->get('status_id');
         if ($receipt->save()) {
-            $this->responseRequestSuccess($receipt);
-        } else {
-            return $this->responseRequestError('The credentials provided are invalid.', 500);
+            return $this->responseRequestSuccess($receipt);
         }
     }
 
@@ -94,6 +102,41 @@ class ReceiptController extends Controller
     {
         $receipts = Receipt::all();
         return $this->responseRequestSuccess($receipts);
+    }
+
+    public function getActivityReceipt(Receipt $receipt)
+    {
+        $receipt_activity = Receipt::with('activity')
+            ->orderBy('created_at', 'asc')
+            ->get();
+        return $this->responseRequestSuccess($receipt_activity);
+
+    }
+
+    public function test (Request $request, $id)
+    {
+        $receipt_image = Receipt_image::where('receipt_id', $id)->get();
+        return $this->responseRequestSuccess($receipt_image);
+    }
+
+    public function showReceipt(Request $request, $id)
+    {
+        //SELECT receipts.*, user_activity.user_id, users.first, users.last, user_activity.activity_id, activities.name
+        //FROM `user_activity`
+        //JOIN receipts ON user_activity.activity_id = receipts.activity_id
+        //JOIN activities ON user_activity.activity_id = activities.id
+        //JOIN users ON user_activity.user_id = users.id
+        //WHERE user_activity.user_id = 1
+
+        $query = DB::table('user_activity')
+            ->join('receipts', 'user_activity.activity_id', '=', 'receipts.activity_id')
+            ->join('activities', 'user_activity.activity_id', '=', 'activities.id')
+            ->join('users', 'user_activity.user_id', '=', 'users.id')
+            ->select('receipts.*', 'user_activity.user_id', 'users.first', 'users.last', 'user_activity.activity_id', 'activities.name')
+            ->where('user_activity.user_id', '=', $id)
+            ->get();
+        return $this->responseRequestSuccess($query);
+
     }
 
 

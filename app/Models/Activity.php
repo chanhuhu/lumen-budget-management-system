@@ -18,4 +18,9 @@ class Activity extends Model
         return $this->belongsToMany('App\Models\User', 'user_activity');
     }
 
+    public function receipts()
+    {
+        return $this->hasMany('App\Models\Receipt');
+    }
+
 }

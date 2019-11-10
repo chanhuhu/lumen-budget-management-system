@@ -20,7 +20,7 @@ class InsertAllTable extends Migration
                 'name' => 'Accountant',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
-            ],  [
+            ], [
                 'name' => 'Employee',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
@@ -37,7 +37,7 @@ class InsertAllTable extends Migration
                 'password' => Hash::make('123456'),
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
-            ],  [
+            ], [
                 'role_id' => 2,
                 'first' => 'Danny',
                 'last' => 'Boy',
@@ -53,7 +53,7 @@ class InsertAllTable extends Migration
                 'name' => 'Purchase_invoices',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
-            ],  [
+            ], [
                 'name' => 'Material_withdrawal_slips',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
@@ -92,6 +92,14 @@ class InsertAllTable extends Migration
                 'updated_at' => date('Y-m-d H:i:s'),
             ], [
                 'name' => 'DRAFT',
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ], [
+                'name' => 'APPROVE',
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ], [
+                'name' => 'REJECT',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
             ]]

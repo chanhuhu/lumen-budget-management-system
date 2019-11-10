@@ -15,4 +15,6 @@ class Status extends Model
     public static $PENDING      = 6;
     public static $PROCESSING   = 7;
     public static $DRAFT        = 8;
+    public static $APPROVE      = 9;
+    public static $REJECT       = 10;
 }

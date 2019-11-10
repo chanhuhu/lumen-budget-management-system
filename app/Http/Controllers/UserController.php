@@ -26,7 +26,7 @@ class UserController extends Controller
             return $this->responseRequestSuccess($user);
 
         }
-        return $this->responseRequestError('The credentials provided are invalid.', 500);
+        return $this->responseRequestError("อีเมล์ หรือ รหัสผ่านของท่านไม่ถูกต้อง");
 
     }
 

@@ -9,11 +9,11 @@ class Receipt extends Model
     protected $table = 'receipts';
 
     protected $fillable = [
-        'remark', 'cost', 'date', 'activity_id'
+        'remark', 'cost', 'date', 'activity_id', 'accountant_id'
     ];
 
     protected $hidden = [
-        'status_id', 'approver_id'
+        'status_id',
     ];
 
     public function receipt_image()
