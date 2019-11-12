@@ -57,10 +57,10 @@ class ReceiptController extends Controller
     public function checkCost(Request $request, $id)
     {
         $receipt = Receipt::where('id', $id)->first();
-        if ($receipt->cost == $request->cost) {
-            return $this->responseRequestSuccess('this cost is matched');
+        if ($receipt->cost == floatval($request->cost)) {
+            return $this->responseRequestSuccess('จำนวนเงินเท่ากัน');
         }
-        return $this->responseRequestError('does\'t match');
+        return $this->responseRequestSuccess('จำนวนเงินไม่เท่ากัน');
     }
 
     protected function uploadFiles($request)
@@ -100,20 +100,33 @@ class ReceiptController extends Controller
 
     public function getReceipts(Request $request)
     {
-        $receipts = Receipt::all();
-        return $this->responseRequestSuccess($receipts);
+        $orders = Receipt::select(
+            DB::raw('sum(cost) as sums'),
+            DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
+            DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
+        )
+            ->where('status_id', Status::$APPROVE)
+            ->groupBy('months', 'monthKey')
+            ->orderBy('created_at', 'ASC')
+            ->get();
+        $data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        foreach ($orders as $order) {
+            $data[$order->monthKey - 1] = $order->sums;
+        }
+        return $this->responseRequestSuccess($data);
     }
 
     public function getActivityReceipt(Receipt $receipt)
     {
         $receipt_activity = Receipt::with('activity')
+            ->where('status_id', Status::$WAITING)
             ->orderBy('created_at', 'asc')
             ->get();
         return $this->responseRequestSuccess($receipt_activity);
 
     }
 
-    public function test (Request $request, $id)
+    public function test(Request $request, $id)
     {
         $receipt_image = Receipt_image::where('receipt_id', $id)->get();
         return $this->responseRequestSuccess($receipt_image);
@@ -121,18 +134,12 @@ class ReceiptController extends Controller
 
     public function showReceipt(Request $request, $id)
     {
-        //SELECT receipts.*, user_activity.user_id, users.first, users.last, user_activity.activity_id, activities.name
-        //FROM `user_activity`
-        //JOIN receipts ON user_activity.activity_id = receipts.activity_id
-        //JOIN activities ON user_activity.activity_id = activities.id
-        //JOIN users ON user_activity.user_id = users.id
-        //WHERE user_activity.user_id = 1
 
         $query = DB::table('user_activity')
             ->join('receipts', 'user_activity.activity_id', '=', 'receipts.activity_id')
             ->join('activities', 'user_activity.activity_id', '=', 'activities.id')
-            ->join('users', 'user_activity.user_id', '=', 'users.id')
-            ->select('receipts.*', 'user_activity.user_id', 'users.first', 'users.last', 'user_activity.activity_id', 'activities.name')
+            ->join('status', 'receipts.status_id', '=', 'status.id')
+            ->select('receipts.*', 'activities.activity', 'status.name')
             ->where('user_activity.user_id', '=', $id)
             ->get();
         return $this->responseRequestSuccess($query);
@@ -142,14 +149,14 @@ class ReceiptController extends Controller
 
     public function createActivity(Request $request)
     {
-        $activity = Activity::where('name', $request->name)->first();
+        $activity = Activity::where('activity', $request->name)->first();
         if (!empty($activity)) {
             $user = User::find($request->get('user_id'))->activities()->attach($activity->id);
             $activity['user_id'] = $request->get('user_id');
             return $this->responseRequestSuccess($activity);
         } else {
             $activity = new Activity();
-            $activity->name = $request->name;
+            $activity->activity = $request->name;
             if ($activity->save()) {
                 $user = User::find($request->get('user_id'))->activities()->attach($activity->id);
                 $activity['user_id'] = $request->get('user_id');

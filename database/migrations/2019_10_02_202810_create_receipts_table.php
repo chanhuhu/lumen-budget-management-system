@@ -17,7 +17,7 @@ class CreateReceiptsTable extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('activity_id');
             $table->string('accountant_id')->nullable();
-            $table->string('remark');
+            $table->string('remark')->nullable();
             $table->float('cost');
             $table->string('date');
             $table->unsignedInteger('status_id')->default(4);

@@ -10,7 +10,7 @@ class Activity extends Model
     protected $table = "activities";
 
     protected $fillable = [
-        'name',
+        'activity',
     ];
 
     public function users()

@@ -33,7 +33,7 @@ $router->group(['prefix' => 'api'], function ($router) {
     $router->get('role/getAll', 'UserController@getRoles');
     $router->post('role/create', 'UserController@createRole');
     //extraordinary
-    $router->get('receipt/check/{id}', 'ReceiptController@checkCost');
+    $router->post('receipt/check/{id}', 'ReceiptController@checkCost');
     $router->get('image/receipt/{id}', 'ReceiptController@test');
     $router->get('receipt/user/{id}', 'ReceiptController@showReceipt');
     $router->get('activity/user/{id}', 'ReceiptController@showUserActivities');
