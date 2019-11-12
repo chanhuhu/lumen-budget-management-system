@@ -54,6 +54,21 @@ class ReceiptController extends Controller
         return $this->responseRequestSuccess($receipt);
     }
 
+    public function getCountReicept(Request $request)
+    {
+        $countWhereReject = Receipt::all()->where('status_id', Status::$REJECT)->count();
+        $countWhereApprove = Receipt::all()->where('status_id', Status::$APPROVE)->count();
+        $countWhereWaiting = Receipt::all()->where('status_id', Status::$WAITING)->count();
+        $countAllReceipt = Receipt::all()->count();
+        $form = [
+            'allInvoice' => $countAllReceipt,
+            'approved' => $countWhereApprove,
+            'rejected' => $countWhereReject,
+            'waiting' => $countWhereWaiting
+        ];
+        return $this->responseRequestSuccess($form);
+    }
+
     public function checkCost(Request $request, $id)
     {
         $receipt = Receipt::where('id', $id)->first();
@@ -100,18 +115,19 @@ class ReceiptController extends Controller
 
     public function getReceipts(Request $request)
     {
-        $orders = Receipt::select(
+        $invoices = Receipt::select(
             DB::raw('sum(cost) as sums'),
-            DB::raw("DATE_FORMAT(created_at,'%M %Y') as months"),
-            DB::raw("DATE_FORMAT(created_at,'%m') as monthKey")
+            DB::raw("date as months")
         )
             ->where('status_id', Status::$APPROVE)
-            ->groupBy('months', 'monthKey')
+            ->groupBy('months')
             ->orderBy('created_at', 'ASC')
             ->get();
         $data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-        foreach ($orders as $order) {
-            $data[$order->monthKey - 1] = $order->sums;
+        foreach ($invoices as $invoice) {
+            $key = explode('-', $invoice->months);
+            $month = $key[1];
+            $data[$month - 1] = $invoice->sums;
         }
         return $this->responseRequestSuccess($data);
     }

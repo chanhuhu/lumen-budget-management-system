@@ -18,6 +18,7 @@ $router->get('/', function () use ($router) {
 $router->group(['prefix' => 'api'], function ($router) {
     //user
     $router->get('user/getAll', 'UserController@getUsers');
+    $router->get('receipt/getAll/count', 'ReceiptController@getCountReicept');
     $router->get('user/{id}', 'UserController@showUser');
     $router->post('user/login', 'UserController@login');
     $router->post('user/register', 'UserController@register');
@@ -34,8 +35,8 @@ $router->group(['prefix' => 'api'], function ($router) {
     $router->post('role/create', 'UserController@createRole');
     //extraordinary
     $router->post('receipt/check/{id}', 'ReceiptController@checkCost');
-    $router->get('image/receipt/{id}', 'ReceiptController@test');
     $router->get('receipt/user/{id}', 'ReceiptController@showReceipt');
+    $router->get('image/receipt/{id}', 'ReceiptController@test');
     $router->get('activity/user/{id}', 'ReceiptController@showUserActivities');
     $router->get('activity/receipt/getAll', 'ReceiptController@getActivityReceipt');
 });
