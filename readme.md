@@ -1,3 +1,7 @@
+# api for การพัฒนาแอพพลิเคชั่นสําหรับการบันทึกและตรวจสอบการเบิกเงิน
+
+บริษัทต้องการระบบ การจดบันทึก การเบิกค่าใช้จ่ายต่างๆของพนักงาน เพื่อง่ายต่อการตรวจสอบของฝ่ายบัญชี การเบิกจ่าย และการนําข้อมูลไปใช้ในการวิเคราะห์และเก็บบันทึก
+
 # Lumen PHP Framework
 
 [![Build Status](https://travis-ci.org/laravel/lumen-framework.svg)](https://travis-ci.org/laravel/lumen-framework)
